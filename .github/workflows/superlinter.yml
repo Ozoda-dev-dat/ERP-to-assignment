@@ -1,0 +1,34 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Repositoriyni klonlash
+      uses: actions/checkout@v3
+
+    - name: Node.js o‘rnatish
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Paketlarni o‘rnatish
+      run: npm install
+
+    - name: Testlarni ishga tushurish (agar mavjud bo‘lsa)
+      run: npm test
+
+    - name: EC2 serverga upload qilish (scp orqali)
+      run: |
+        echo "${{ secrets.EC2_PRIVATE_KEY }}" > key.pem
+        chmod 600 key.pem
+        scp -o StrictHostKeyChecking=no -i key.pem -r ./ ubuntu@YOUR_EC2_PUBLIC_IP:/home/ubuntu/your_project
+
+    - name: EC2’da serverni qayta ishga tushurish (ssh orqali)
+      run: |
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@YOUR_EC2_PUBLIC_IP 'cd /home/ubuntu/your_project && npm install && pm2 restart all'
