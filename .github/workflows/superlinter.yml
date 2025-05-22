@@ -18,7 +18,7 @@ jobs:
         node-version: '18'
 
     - name: Paketlarni o‘rnatish
-      run: npm install
+      run: npm install --legacy-peer-deps
 
     - name: Testlarni ishga tushurish (agar mavjud bo‘lsa)
       run: npm test
